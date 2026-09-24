@@ -27,7 +27,7 @@
 <style>
   :root{
     --ground:#0E1114; --surface:#171C20; --surface-2:#1F262A; --line:#2A3236;
-    --ink:#E9E5DE; --muted:#8A938F; --dim:#616B68;
+    --ink:#E9E5DE; --muted:#B4BCB8; --dim:#8F9895;
     --candle:#D2A055; --figure:#7FA8A0; --tension:#C77A5E; --resource:#93B08A;
     --serif:"Spectral",Georgia,"Times New Roman",serif;
     --sans:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
@@ -37,7 +37,7 @@
   html{background:var(--ground);color-scheme:dark}
   body{
     margin:0;background:var(--ground);color:var(--ink);
-    font-family:var(--serif);font-size:clamp(.92rem,.88rem + .2vw,1rem);line-height:1.6;
+    font-family:var(--serif);font-size:1.0625rem;line-height:1.6;
     -webkit-font-smoothing:antialiased;
   }
   .app{
@@ -52,10 +52,10 @@
   }
   .mark{width:26px;height:26px;flex:none;border-radius:50%;border:1px solid var(--line);
     background:radial-gradient(circle at 50% 45%,var(--candle) 0 2.5px,transparent 3px)}
-  .brand{font-family:var(--sans);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-left:4px}
+  .brand{font-family:var(--sans);font-size:.97rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-left:4px}
   header .spacer{flex:1}
   .ghost{
-    font-family:var(--sans);font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;
+    font-family:var(--sans);font-size:.87rem;letter-spacing:.07em;text-transform:uppercase;
     color:var(--dim);background:none;border:1px solid var(--line);border-radius:999px;
     padding:6px 11px;cursor:pointer;white-space:nowrap;
   }
@@ -67,8 +67,8 @@
 
   .steps{display:flex;padding:0 18px 12px;font-family:var(--sans)}
   .steps div{
-    flex:1;font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;
-    color:#414A4D;padding-top:7px;border-top:1px solid var(--line);transition:color .4s,border-color .4s;
+    flex:1;font-size:.8rem;letter-spacing:.01em;
+    color:#6F7976;padding-top:7px;border-top:1px solid var(--line);transition:color .4s,border-color .4s;
   }
   .steps div.done{border-top-color:#3C4A46;color:var(--dim)}
   .steps div.now{border-top-color:var(--candle);color:var(--candle)}
@@ -82,24 +82,24 @@
   .laws{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px;
     background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden}
   .laws li{background:var(--surface);padding:13px 15px;display:flex;flex-direction:column;gap:4px}
-  .laws b{font-family:var(--sans);font-weight:500;font-size:.68rem;letter-spacing:.11em;
+  .laws b{font-family:var(--sans);font-weight:500;font-size:.84rem;letter-spacing:.11em;
     text-transform:uppercase;color:var(--figure)}
   .laws span{color:var(--muted);font-size:.92rem;line-height:1.5}
-  .facts{font-family:var(--sans);font-size:.78rem;color:var(--dim);line-height:1.7;margin:0}
-  .caution{font-size:.86rem;color:var(--dim);border-left:1px solid var(--tension);padding:2px 0 2px 13px;margin:0}
-  .sign{font-family:var(--sans);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:#414A4D;text-align:center;margin:6px 0 0}
+  .facts{font-family:var(--sans);font-size:.97rem;color:var(--dim);line-height:1.7;margin:0}
+  .caution{font-size:.98rem;color:var(--dim);border-left:1px solid var(--tension);padding:2px 0 2px 13px;margin:0}
+  .sign{font-family:var(--sans);font-size:.84rem;letter-spacing:.1em;text-transform:uppercase;color:#6F7976;text-align:center;margin:6px 0 0}
 
   button.primary,a.primary{
     display:block;text-align:center;text-decoration:none;
-    font-family:var(--sans);font-size:.86rem;font-weight:500;letter-spacing:.04em;
+    font-family:var(--sans);font-size:.98rem;font-weight:500;letter-spacing:.04em;
     background:var(--candle);color:#15120C;border:0;border-radius:3px;
-    padding:14px 20px;cursor:pointer;width:100%;
+    padding:16px 20px;cursor:pointer;width:100%;
   }
   button.primary:hover,a.primary:hover{background:#E0AE61}
   button.primary:disabled{background:var(--surface-2);color:var(--dim);cursor:default}
   button.quiet{
-    font-family:var(--sans);font-size:.78rem;letter-spacing:.03em;color:var(--muted);
-    background:none;border:1px solid var(--line);border-radius:3px;padding:11px 14px;cursor:pointer;
+    font-family:var(--sans);font-size:.97rem;letter-spacing:.03em;color:var(--muted);
+    background:none;border:1px solid var(--line);border-radius:3px;padding:13px 14px;cursor:pointer;
   }
   button.quiet:hover{color:var(--ink);border-color:var(--dim)}
   .row{display:flex;gap:9px}
@@ -137,40 +137,40 @@
   .fig[data-tone="self"] .presence i{width:17px;height:17px}
   .fig.sel .presence{box-shadow:0 0 0 1px var(--c)}
   .fig span{
-    font-family:var(--sans);font-size:.74rem;line-height:1.2;color:var(--ink);text-align:center;
-    background:rgba(14,17,20,.9);padding:3px 6px;border-radius:2px;max-width:10ch;overflow-wrap:anywhere;
+    font-family:var(--sans);font-size:.92rem;line-height:1.2;color:var(--ink);text-align:center;
+    background:rgba(14,17,20,.9);padding:3px 6px;border-radius:2px;max-width:11ch;overflow-wrap:anywhere;
   }
   .field-empty{
     position:absolute;inset:0;display:grid;place-items:center;text-align:center;
-    font-family:var(--sans);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
-    color:#414A4D;padding:0 20%;line-height:1.7;
+    font-family:var(--sans);font-size:.87rem;letter-spacing:.08em;text-transform:uppercase;
+    color:#6F7976;padding:0 20%;line-height:1.7;
   }
-  .field-note{font-family:var(--sans);font-size:.66rem;letter-spacing:.07em;text-transform:uppercase;
+  .field-note{font-family:var(--sans);font-size:.82rem;letter-spacing:.07em;text-transform:uppercase;
     color:var(--dim);text-align:center;padding:9px 0 0;min-height:1.2em}
 
   /* маленькие поля «было — стало» */
   .compare{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .compare figure{margin:0;display:flex;flex-direction:column;gap:7px;align-items:center}
-  .compare figcaption{font-family:var(--sans);font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;color:var(--dim)}
+  .compare figcaption{font-family:var(--sans);font-size:.78rem;letter-spacing:.11em;text-transform:uppercase;color:var(--dim)}
   .mini{position:relative;width:100%;aspect-ratio:1;border-radius:50%;border:1px solid var(--line);background:var(--surface)}
   .mini .fig{cursor:default}
   .mini .fig .presence{width:18px;height:18px}
   .mini .fig .presence i{width:8px;height:8px}
   .mini .fig[data-tone="self"] .presence i{width:10px;height:10px}
   .mini .fig .presence::before{top:-2px;margin-left:-3px;border-left-width:3px;border-right-width:3px;border-bottom-width:5px}
-  .mini .fig span{font-size:.56rem;padding:1px 4px;max-width:9ch}
+  .mini .fig span{font-size:.7rem;padding:1px 4px;max-width:9ch}
 
   /* панель хода */
   .panel{padding:14px 18px 22px;display:flex;flex-direction:column;gap:14px}
-  .ask{font-size:1.18rem;line-height:1.45;text-wrap:balance;margin:0}
-  .eyebrow{font-family:var(--sans);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--figure);margin:0 0 -8px}
-  .hint{font-family:var(--sans);font-size:.76rem;color:var(--dim);line-height:1.55;margin:0}
+  .ask{font-size:1.32rem;line-height:1.45;text-wrap:balance;margin:0}
+  .eyebrow{font-family:var(--sans);font-size:.79rem;letter-spacing:.12em;text-transform:uppercase;color:var(--figure);margin:0 0 -8px}
+  .hint{font-family:var(--sans);font-size:.94rem;color:var(--dim);line-height:1.55;margin:0}
   textarea,input[type=text]{
-    width:100%;resize:none;font-family:var(--serif);font-size:1rem;color:var(--ink);
+    width:100%;resize:none;font-family:var(--serif);font-size:1.06rem;color:var(--ink);
     background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:12px 13px;line-height:1.5;
   }
   textarea{min-height:88px}
-  textarea::placeholder,input::placeholder{color:#4E5755}
+  textarea::placeholder,input::placeholder{color:#6A7471}
   textarea:focus,input:focus{outline:none;border-color:var(--dim)}
 
   /* выдержка перед «Дальше» */
@@ -182,11 +182,11 @@
   .pause .ask{font-style:italic;color:var(--candle)}
 
   /* фигуры-кнопки */
-  .cat{font-family:var(--sans);font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;color:var(--dim);margin:6px 0 0}
+  .cat{font-family:var(--sans);font-size:.78rem;letter-spacing:.11em;text-transform:uppercase;color:var(--dim);margin:6px 0 0}
   .chips{display:flex;flex-wrap:wrap;gap:6px}
   .chip{
-    font-family:var(--sans);font-size:.8rem;color:var(--muted);background:var(--surface);
-    border:1px solid var(--line);border-radius:999px;padding:7px 12px;cursor:pointer;
+    font-family:var(--sans);font-size:.98rem;color:var(--muted);background:var(--surface);
+    border:1px solid var(--line);border-radius:999px;padding:9px 14px;cursor:pointer;
   }
   .chip:hover{color:var(--ink)}
   .chip.on{background:rgba(210,160,85,.14);border-color:#3A3327;color:var(--candle)}
@@ -199,10 +199,10 @@
     display:flex;gap:6px;align-items:center;flex-wrap:wrap;
     border:1px solid var(--line);border-radius:3px;background:var(--surface);padding:9px 10px;
   }
-  .tools b{font-family:var(--sans);font-weight:500;font-size:.78rem;color:var(--ink);margin-right:auto}
+  .tools b{font-family:var(--sans);font-weight:500;font-size:.97rem;color:var(--ink);margin-right:auto}
   .tools button{
-    font-family:var(--sans);font-size:.72rem;color:var(--muted);background:var(--surface-2);
-    border:0;border-radius:3px;padding:8px 10px;cursor:pointer;
+    font-family:var(--sans);font-size:.89rem;color:var(--muted);background:var(--surface-2);
+    border:0;border-radius:3px;padding:10px 12px;cursor:pointer;
   }
   .tools button:hover{color:var(--ink)}
   .tools button.danger:hover{color:var(--tension)}
@@ -210,7 +210,7 @@
   /* наблюдение поля */
   .observe{border:1px solid var(--line);border-left:2px solid var(--figure);background:var(--surface);
     border-radius:3px;padding:13px 15px;display:flex;flex-direction:column;gap:7px}
-  .observe h3{font-family:var(--sans);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
+  .observe h3{font-family:var(--sans);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;
     color:var(--figure);margin:0}
   .observe ul{margin:0;padding-left:1.05em;color:var(--muted);font-size:.95rem}
   .observe li{margin-bottom:.3em}
@@ -219,37 +219,37 @@
   .dyn{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden}
   .dyn label{background:var(--surface);padding:13px 15px;display:flex;gap:12px;align-items:flex-start;cursor:pointer}
   .dyn input{margin-top:5px;accent-color:var(--candle);flex:none;width:17px;height:17px}
-  .dyn b{display:block;font-family:var(--sans);font-weight:500;font-size:.84rem;color:var(--ink)}
+  .dyn b{display:block;font-family:var(--sans);font-weight:500;font-size:.98rem;color:var(--ink)}
   .dyn i{display:block;font-style:normal;color:var(--muted);font-size:.92rem;margin-top:3px}
 
   /* фразы */
   .phrase{border:1px solid #3A3327;background:rgba(210,160,85,.07);border-radius:3px;padding:16px 15px;
     display:flex;flex-direction:column;gap:8px}
-  .phrase .who{font-family:var(--sans);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--candle)}
+  .phrase .who{font-family:var(--sans);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--candle)}
   .phrase q{font-family:var(--serif);font-style:italic;font-size:1.25rem;line-height:1.4;color:var(--candle);quotes:"«" "»"}
 
   /* журнал и итог */
   .log{border-top:1px solid var(--line);padding:16px 18px 30px;display:flex;flex-direction:column;gap:14px}
-  .log h2,.final h2{font-family:var(--sans);font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;
+  .log h2,.final h2{font-family:var(--sans);font-size:.79rem;letter-spacing:.13em;text-transform:uppercase;
     color:var(--dim);margin:0}
   .entry{display:flex;flex-direction:column;gap:3px}
-  .entry b{font-family:var(--sans);font-weight:400;font-size:.78rem;color:var(--dim)}
+  .entry b{font-family:var(--sans);font-weight:400;font-size:.97rem;color:var(--dim)}
   .final{display:flex;flex-direction:column;gap:18px}
   .final section{display:flex;flex-direction:column;gap:6px}
-  .final h3{font-family:var(--sans);font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;color:var(--figure);margin:0}
+  .final h3{font-family:var(--sans);font-size:.78rem;letter-spacing:.11em;text-transform:uppercase;color:var(--figure);margin:0}
   .final ul{margin:0;padding-left:1.05em}
   .final .said{color:var(--candle);font-style:italic}
-  .schema{font-family:var(--sans);font-size:.84rem;color:var(--muted);line-height:1.8}
+  .schema{font-family:var(--sans);font-size:.98rem;color:var(--muted);line-height:1.8}
 
   /* предложение */
   .offer{border:1px solid var(--line);border-radius:3px;background:var(--surface);padding:18px 16px;
     display:flex;flex-direction:column;gap:10px}
   .offer .eyebrow{margin:0;color:var(--candle)}
   .offer p{margin:0;color:var(--muted)}
-  .offer .price{font-family:var(--sans);font-size:.8rem;color:var(--ink);letter-spacing:.02em}
-  .offer a.more{font-family:var(--sans);font-size:.78rem;color:var(--dim);text-align:center;text-decoration:none;padding:4px}
+  .offer .price{font-family:var(--sans);font-size:.98rem;color:var(--ink);letter-spacing:.02em}
+  .offer a.more{font-family:var(--sans);font-size:.97rem;color:var(--dim);text-align:center;text-decoration:none;padding:4px}
   .offer a.more:hover{color:var(--ink)}
-  .toast{font-family:var(--sans);font-size:.78rem;color:var(--resource);text-align:center;margin:0}
+  .toast{font-family:var(--sans);font-size:.97rem;color:var(--resource);text-align:center;margin:0}
 
   /* «Мне тяжело» */
   .help-layer{
