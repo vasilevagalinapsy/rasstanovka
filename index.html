@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Поле расстановки · Бережная психология Галины Васильевой</title>
+<meta name="description" content="Расстановка по методу Берта Хеллингера у тебя в телефоне. Фигуры ставишь ты, приложение держит шаги и задаёт вопросы. Без регистрации, всё остаётся в телефоне.">
+<meta name="theme-color" content="#0E1114">
+<!--
+  ПОЛЕ РАССТАНОВКИ — самостоятельная расстановка в телефоне, без ИИ и без сервера.
+  Решение и причины — decisions/0066-pole-rasstanovki.md.
+
+  ССЫЛКИ И ОФФЕР — в CONFIG внизу, в <script>.
+  ТЕКСТЫ ВОПРОСОВ, ДИНАМИК И ФРАЗ — в блоке «содержание» там же. Правится только там.
+
+  Правила текста: обращение на «ты», без рода (standards/tekst_bez_roda.md),
+  без «родовых программ» и эзотерики (brand_gala.md → «Запрещённые формулировки»).
+  Имена фигур в вопросах стоят только в именительном падеже — иначе «на Отец».
+
+  Данные: всё хранится в localStorage телефона, на сервер не уходит ничего.
+  Копия этого файла публикуется и в Claude как артефакт — там «Сохранить» идёт
+  через возможность downloads, на сайте — через «Поделиться» или скачивание.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;1,300&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#0E1114; --surface:#171C20; --surface-2:#1F262A; --line:#2A3236;
+    --ink:#E9E5DE; --muted:#8A938F; --dim:#616B68;
+    --candle:#D2A055; --figure:#7FA8A0; --tension:#C77A5E; --resource:#93B08A;
+    --serif:"Spectral",Georgia,"Times New Roman",serif;
+    --sans:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  html{background:var(--ground);color-scheme:dark}
+  body{
+    margin:0;background:var(--ground);color:var(--ink);
+    font-family:var(--serif);font-size:clamp(.92rem,.88rem + .2vw,1rem);line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    max-width:640px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;
+    background:radial-gradient(120% 60% at 50% -10%,#141A1E 0%,var(--ground) 70%);
+  }
+
+  header{
+    position:sticky;top:0;z-index:5;padding:14px 18px 10px;
+    background:linear-gradient(var(--ground) 72%,rgba(14,17,20,0));
+    display:flex;align-items:center;gap:8px;
+  }
+  .mark{width:26px;height:26px;flex:none;border-radius:50%;border:1px solid var(--line);
+    background:radial-gradient(circle at 50% 45%,var(--candle) 0 2.5px,transparent 3px)}
+  .brand{font-family:var(--sans);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-left:4px}
+  header .spacer{flex:1}
+  .ghost{
+    font-family:var(--sans);font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--dim);background:none;border:1px solid var(--line);border-radius:999px;
+    padding:6px 11px;cursor:pointer;white-space:nowrap;
+  }
+  .ghost:hover{color:var(--ink);border-color:var(--dim)}
+  .ghost.armed{color:var(--tension);border-color:var(--tension)}
+  .ghost.help{color:var(--tension);border-color:#4A3530}
+  @media (max-width:430px){ .working .brand{display:none} }
+  :focus-visible{outline:2px solid var(--candle);outline-offset:2px}
+
+  .steps{display:flex;padding:0 18px 12px;font-family:var(--sans)}
+  .steps div{
+    flex:1;font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;
+    color:#414A4D;padding-top:7px;border-top:1px solid var(--line);transition:color .4s,border-color .4s;
+  }
+  .steps div.done{border-top-color:#3C4A46;color:var(--dim)}
+  .steps div.now{border-top-color:var(--candle);color:var(--candle)}
+
+  /* вступление */
+  .intro{padding:22px 22px 36px;display:flex;flex-direction:column;gap:20px}
+  h1{font-family:var(--serif);font-weight:300;font-size:clamp(1.9rem,1.4rem + 2.4vw,2.6rem);
+    line-height:1.12;margin:0;text-wrap:balance;letter-spacing:-.01em}
+  h1 em{font-style:italic;color:var(--candle)}
+  .lede{color:var(--muted);max-width:34em;margin:0}
+  .laws{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px;
+    background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .laws li{background:var(--surface);padding:13px 15px;display:flex;flex-direction:column;gap:4px}
+  .laws b{font-family:var(--sans);font-weight:500;font-size:.68rem;letter-spacing:.11em;
+    text-transform:uppercase;color:var(--figure)}
+  .laws span{color:var(--muted);font-size:.92rem;line-height:1.5}
+  .facts{font-family:var(--sans);font-size:.78rem;color:var(--dim);line-height:1.7;margin:0}
+  .caution{font-size:.86rem;color:var(--dim);border-left:1px solid var(--tension);padding:2px 0 2px 13px;margin:0}
+  .sign{font-family:var(--sans);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:#414A4D;text-align:center;margin:6px 0 0}
+
+  button.primary,a.primary{
+    display:block;text-align:center;text-decoration:none;
+    font-family:var(--sans);font-size:.86rem;font-weight:500;letter-spacing:.04em;
+    background:var(--candle);color:#15120C;border:0;border-radius:3px;
+    padding:14px 20px;cursor:pointer;width:100%;
+  }
+  button.primary:hover,a.primary:hover{background:#E0AE61}
+  button.primary:disabled{background:var(--surface-2);color:var(--dim);cursor:default}
+  button.quiet{
+    font-family:var(--sans);font-size:.78rem;letter-spacing:.03em;color:var(--muted);
+    background:none;border:1px solid var(--line);border-radius:3px;padding:11px 14px;cursor:pointer;
+  }
+  button.quiet:hover{color:var(--ink);border-color:var(--dim)}
+  .row{display:flex;gap:9px}
+  .row > *{flex:1}
+
+  /* поле */
+  .field-wrap{padding:4px 18px 0}
+  .field{
+    position:relative;width:min(100%,42dvh,380px);aspect-ratio:1;margin:0 auto;
+    border-radius:50%;border:1px solid var(--line);
+    background:radial-gradient(circle at 50% 50%,rgba(210,160,85,.05) 0%,transparent 62%),var(--surface);
+    touch-action:none;
+  }
+  .field::after{content:"";position:absolute;inset:14%;border-radius:50%;border:1px dashed #232B2F;pointer-events:none}
+  .field svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+  .fig{
+    position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;
+    align-items:center;gap:4px;cursor:grab;touch-action:none;z-index:1;--c:var(--figure);
+  }
+  .fig[data-tone="tension"]{--c:var(--tension)}
+  .fig[data-tone="self"]{--c:var(--candle)}
+  .fig[data-tone="resource"]{--c:var(--resource)}
+  .fig.dragging{cursor:grabbing;z-index:4}
+  .fig .presence{position:relative;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+    background:radial-gradient(circle,rgba(127,168,160,.16) 0%,transparent 70%)}
+  .fig[data-tone="self"] .presence{background:radial-gradient(circle,rgba(210,160,85,.2) 0%,transparent 70%)}
+  .fig[data-tone="tension"] .presence{background:radial-gradient(circle,rgba(199,122,94,.18) 0%,transparent 70%)}
+  .fig[data-tone="resource"] .presence{background:radial-gradient(circle,rgba(147,176,138,.16) 0%,transparent 70%)}
+  .fig .presence::before{
+    content:"";position:absolute;top:-3px;left:50%;margin-left:-4.5px;
+    border-left:4.5px solid transparent;border-right:4.5px solid transparent;
+    border-bottom:7px solid var(--c);opacity:.9;
+  }
+  .fig .presence i{display:block;width:14px;height:14px;border-radius:50%;background:var(--c)}
+  .fig[data-tone="self"] .presence i{width:17px;height:17px}
+  .fig.sel .presence{box-shadow:0 0 0 1px var(--c)}
+  .fig span{
+    font-family:var(--sans);font-size:.74rem;line-height:1.2;color:var(--ink);text-align:center;
+    background:rgba(14,17,20,.9);padding:3px 6px;border-radius:2px;max-width:10ch;overflow-wrap:anywhere;
+  }
+  .field-empty{
+    position:absolute;inset:0;display:grid;place-items:center;text-align:center;
+    font-family:var(--sans);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
+    color:#414A4D;padding:0 20%;line-height:1.7;
+  }
+  .field-note{font-family:var(--sans);font-size:.66rem;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--dim);text-align:center;padding:9px 0 0;min-height:1.2em}
+
+  /* маленькие поля «было — стало» */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .compare figure{margin:0;display:flex;flex-direction:column;gap:7px;align-items:center}
+  .compare figcaption{font-family:var(--sans);font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;color:var(--dim)}
+  .mini{position:relative;width:100%;aspect-ratio:1;border-radius:50%;border:1px solid var(--line);background:var(--surface)}
+  .mini .fig{cursor:default}
+  .mini .fig .presence{width:18px;height:18px}
+  .mini .fig .presence i{width:8px;height:8px}
+  .mini .fig[data-tone="self"] .presence i{width:10px;height:10px}
+  .mini .fig .presence::before{top:-2px;margin-left:-3px;border-left-width:3px;border-right-width:3px;border-bottom-width:5px}
+  .mini .fig span{font-size:.56rem;padding:1px 4px;max-width:9ch}
+
+  /* панель хода */
+  .panel{padding:14px 18px 22px;display:flex;flex-direction:column;gap:14px}
+  .ask{font-size:1.18rem;line-height:1.45;text-wrap:balance;margin:0}
+  .eyebrow{font-family:var(--sans);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--figure);margin:0 0 -8px}
+  .hint{font-family:var(--sans);font-size:.76rem;color:var(--dim);line-height:1.55;margin:0}
+  textarea,input[type=text]{
+    width:100%;resize:none;font-family:var(--serif);font-size:1rem;color:var(--ink);
+    background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:12px 13px;line-height:1.5;
+  }
+  textarea{min-height:88px}
+  textarea::placeholder,input::placeholder{color:#4E5755}
+  textarea:focus,input:focus{outline:none;border-color:var(--dim)}
+
+  /* выдержка перед «Дальше» */
+  .hold{height:2px;background:var(--line);border-radius:2px;overflow:hidden}
+  .hold i{display:block;height:100%;width:0;background:var(--candle);animation:hold linear forwards}
+  @keyframes hold{to{width:100%}}
+  @media (prefers-reduced-motion:reduce){.hold i{animation:none;width:100%;opacity:.35}}
+  .pause{display:flex;flex-direction:column;gap:12px;padding:18px 0 6px}
+  .pause .ask{font-style:italic;color:var(--candle)}
+
+  /* фигуры-кнопки */
+  .cat{font-family:var(--sans);font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;color:var(--dim);margin:6px 0 0}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{
+    font-family:var(--sans);font-size:.8rem;color:var(--muted);background:var(--surface);
+    border:1px solid var(--line);border-radius:999px;padding:7px 12px;cursor:pointer;
+  }
+  .chip:hover{color:var(--ink)}
+  .chip.on{background:rgba(210,160,85,.14);border-color:#3A3327;color:var(--candle)}
+  .add{display:flex;gap:8px}
+  .add input{flex:1}
+  .add button{flex:none;padding:0 16px}
+
+  /* выбранная фигура */
+  .tools{
+    display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+    border:1px solid var(--line);border-radius:3px;background:var(--surface);padding:9px 10px;
+  }
+  .tools b{font-family:var(--sans);font-weight:500;font-size:.78rem;color:var(--ink);margin-right:auto}
+  .tools button{
+    font-family:var(--sans);font-size:.72rem;color:var(--muted);background:var(--surface-2);
+    border:0;border-radius:3px;padding:8px 10px;cursor:pointer;
+  }
+  .tools button:hover{color:var(--ink)}
+  .tools button.danger:hover{color:var(--tension)}
+
+  /* наблюдение поля */
+  .observe{border:1px solid var(--line);border-left:2px solid var(--figure);background:var(--surface);
+    border-radius:3px;padding:13px 15px;display:flex;flex-direction:column;gap:7px}
+  .observe h3{font-family:var(--sans);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--figure);margin:0}
+  .observe ul{margin:0;padding-left:1.05em;color:var(--muted);font-size:.95rem}
+  .observe li{margin-bottom:.3em}
+
+  /* динамики */
+  .dyn{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .dyn label{background:var(--surface);padding:13px 15px;display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+  .dyn input{margin-top:5px;accent-color:var(--candle);flex:none;width:17px;height:17px}
+  .dyn b{display:block;font-family:var(--sans);font-weight:500;font-size:.84rem;color:var(--ink)}
+  .dyn i{display:block;font-style:normal;color:var(--muted);font-size:.92rem;margin-top:3px}
+
+  /* фразы */
+  .phrase{border:1px solid #3A3327;background:rgba(210,160,85,.07);border-radius:3px;padding:16px 15px;
+    display:flex;flex-direction:column;gap:8px}
+  .phrase .who{font-family:var(--sans);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--candle)}
+  .phrase q{font-family:var(--serif);font-style:italic;font-size:1.25rem;line-height:1.4;color:var(--candle);quotes:"«" "»"}
+
+  /* журнал и итог */
+  .log{border-top:1px solid var(--line);padding:16px 18px 30px;display:flex;flex-direction:column;gap:14px}
+  .log h2,.final h2{font-family:var(--sans);font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--dim);margin:0}
+  .entry{display:flex;flex-direction:column;gap:3px}
+  .entry b{font-family:var(--sans);font-weight:400;font-size:.78rem;color:var(--dim)}
+  .final{display:flex;flex-direction:column;gap:18px}
+  .final section{display:flex;flex-direction:column;gap:6px}
+  .final h3{font-family:var(--sans);font-size:.62rem;letter-spacing:.11em;text-transform:uppercase;color:var(--figure);margin:0}
+  .final ul{margin:0;padding-left:1.05em}
+  .final .said{color:var(--candle);font-style:italic}
+  .schema{font-family:var(--sans);font-size:.84rem;color:var(--muted);line-height:1.8}
+
+  /* предложение */
+  .offer{border:1px solid var(--line);border-radius:3px;background:var(--surface);padding:18px 16px;
+    display:flex;flex-direction:column;gap:10px}
+  .offer .eyebrow{margin:0;color:var(--candle)}
+  .offer p{margin:0;color:var(--muted)}
+  .offer .price{font-family:var(--sans);font-size:.8rem;color:var(--ink);letter-spacing:.02em}
+  .offer a.more{font-family:var(--sans);font-size:.78rem;color:var(--dim);text-align:center;text-decoration:none;padding:4px}
+  .offer a.more:hover{color:var(--ink)}
+  .toast{font-family:var(--sans);font-size:.78rem;color:var(--resource);text-align:center;margin:0}
+
+  /* «Мне тяжело» */
+  .help-layer{
+    position:fixed;inset:0;z-index:20;background:rgba(9,11,13,.96);
+    display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;
+  }
+  .help-card{max-width:520px;width:100%;padding:34px 24px 40px;display:flex;flex-direction:column;gap:18px}
+  .help-card h2{font-family:var(--serif);font-weight:300;font-size:1.9rem;line-height:1.15;margin:0}
+  .help-card ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:12px;font-size:1.05rem}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <header>
+    <div class="mark" aria-hidden="true"></div>
+    <div class="brand">Поле расстановки</div>
+    <div class="spacer"></div>
+    <button class="ghost help" id="helpBtn" hidden>Мне тяжело</button>
+    <button class="ghost" id="restart" hidden>Заново</button>
+  </header>
+
+  <div class="steps" id="steps" hidden>
+    <div data-s="1">Запрос</div><div data-s="2">Фигуры</div><div data-s="3">Поле</div>
+    <div data-s="4">Динамика</div><div data-s="5">Фразы</div>
+  </div>
+
+  <div class="intro" id="intro">
+    <h1>Расстановка,<br>которая помещается <em>в ладонь</em></h1>
+    <p class="lede">Это расстановка по методу Берта Хеллингера у тебя в телефоне. Фигуры ставишь ты, и замечаешь тоже ты. Приложение держит порядок шагов и задаёт вопросы. Советов и толкований здесь нет.</p>
+    <ul class="laws">
+      <li><b>Принадлежность</b><span>каждый, кто был в семье, имеет в ней место</span></li>
+      <li><b>Порядок</b><span>кто пришёл раньше, стоит впереди</span></li>
+      <li><b>Баланс</b><span>брать и давать уравновешены</span></li>
+    </ul>
+    <p class="facts">20–30 минут · лучше там, где никто не отвлекает<br>Всё, что ты пишешь, остаётся в этом телефоне. Сервера у страницы нет.</p>
+    <p class="caution">Это исследование через образы, а не терапия и не диагноз. Если станет тяжело, на каждом шаге есть кнопка «Мне тяжело».</p>
+    <button class="primary" id="resume" hidden>Продолжить начатую расстановку</button>
+    <button class="primary" id="begin">Войти в поле</button>
+    <p class="sign">Бережная психология Галины Васильевой</p>
+  </div>
+
+  <div id="work" hidden>
+    <div class="field-wrap" id="fieldWrap" hidden>
+      <div class="field" id="field"></div>
+      <div class="field-note" id="fieldNote"></div>
+    </div>
+    <div class="panel" id="panel"></div>
+    <div class="log" id="log" hidden></div>
+  </div>
+</div>
+
+<div class="help-layer" id="helpLayer" hidden role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+  <div class="help-card">
+    <h2 id="helpTitle">Остановимся.</h2>
+    <p class="lede">Расстановка подождёт, всё сохранено. Сейчас важнее опора.</p>
+    <ol>
+      <li>Поставь стопы на пол. Почувствуй, что пол держит.</li>
+      <li>Выдыхай дольше, чем вдыхаешь. Пять раз.</li>
+      <li>Назови про себя пять вещей, которые видишь вокруг.</li>
+      <li>Выпей воды.</li>
+      <li>Позвони близкому человеку.</li>
+    </ol>
+    <button class="primary" id="helpBack">Вернуться к расстановке</button>
+    <button class="quiet" id="helpStop">Закончить на сегодня</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ======================= CONFIG — ссылки и оффер ======================= */
+  var CONFIG = {
+    diagnosticChat: "https://t.me/galina_psy",
+    diagnosticText: "Здравствуйте! Пишу после расстановки в приложении «Поле расстановки» и хочу записаться на диагностику (30 минут).",
+    diagnosticPrice: "Диагностика · 30 минут · 3 000 ₽",
+    articlesLink: "https://t.me/vasileva_galina_psy/1984"
+  };
+
+  /* ======================= содержание ======================= */
+
+  var LIBRARY = [
+    ["Семья", ["Мать","Отец","Бабушка","Дедушка","Брат","Сестра","Ребёнок","Партнёр","Прежний партнёр","Предки","Тот, о ком молчат"]],
+    ["Чувства", ["Страх","Стыд","Вина","Злость","Печаль","Одиночество","Тяжесть","Покой"]],
+    ["Части меня", ["Часть, которая старается","Часть, которая замирает","Часть, которая знает","Тело","Внутренний критик"]],
+    ["Жизнь и дело", ["Деньги","Работа","Дело","Признание","Здоровье","Дом","Свобода"]],
+    ["События", ["Потеря","Переезд","Развод","Болезнь","Смерть","Война","Долг"]]
+  ];
+
+  var TONES = { "Страх":"tension","Стыд":"tension","Вина":"tension","Злость":"tension","Печаль":"tension",
+    "Одиночество":"tension","Тяжесть":"tension","Долг":"tension","Потеря":"tension","Болезнь":"tension",
+    "Смерть":"tension","Война":"tension","Развод":"tension","Внутренний критик":"tension",
+    "Покой":"resource","Свобода":"resource","Здоровье":"resource","Тело":"resource","Дом":"resource",
+    "Часть, которая знает":"resource","Предки":"resource" };
+
+  /* Вопросы. Имя фигуры {f} — только в именительном падеже. */
+  var Q_GENERAL = [
+    "Кого в поле ты видишь первым?",
+    "Куда хочется отвести взгляд?",
+    "Где в поле пусто?",
+    "Кого здесь не хватает?",
+    "Что в теле прямо сейчас?",
+    "Кто стоит не на своём месте?",
+    "Какое первое слово приходит, когда смотришь на всё поле?",
+    "Что в этой картине самое тяжёлое?",
+    "Кому здесь труднее всех стоять?"
+  ];
+
+  var Q_FIGURE = [
+    "Куда смотрит {f}?",
+    "Что чувствуешь, когда смотришь на эту фигуру?",
+    "Хочется подойти ближе или отойти?",
+    "Эта фигура тяжелее или легче тебя?",
+    "Что в теле, когда {f} рядом?",
+    "Какое первое слово приходит рядом с этой фигурой?",
+    "Что {f} держит?",
+    "Чего {f} ждёт?"
+  ];
+
+  /* «Побыть с этой фигурой ещё» — углубляющие вопросы. */
+  var Q_DEEPER = [
+    "Подвинь эту фигуру на шаг к себе. Что меняется?",
+    "Где в теле отзывается эта фигура?",
+    "Если у этой фигуры есть одно слово для тебя — какое оно?",
+    "Разверни эту фигуру к себе. Что происходит?",
+    "Чего не хватает этой фигуре?",
+    "Что эта фигура знает о тебе?"
+  ];
+
+  var DYNAMICS = [
+    { id:"exclude", name:"Исключённый", q:"Есть ли в твоей семье тот, о ком не говорят, кого забыли или вычеркнули?",
+      phrases:["Я вижу тебя.","Теперь у тебя есть место.","Ты принадлежишь нам."] },
+    { id:"hier", name:"Нарушение порядка", q:"Стоишь ли ты впереди того, кто пришёл в семью раньше тебя?",
+      phrases:["Ты старше. Я младше.","Ты раньше, я после тебя.","Я оставляю тебе твоё место."] },
+    { id:"place", name:"Чужое место", q:"Делаешь ли ты то, что должен был делать кто-то другой?",
+      phrases:["Это твоё. Я отдаю это тебе.","Для ребёнка это было слишком много.","Я возвращаюсь на своё место."] },
+    { id:"loyal", name:"Верность предкам", q:"Хранишь ли ты верность чьей-то судьбе вместо своей?",
+      phrases:["Я остаюсь твоим ребёнком, даже если живу иначе.","Я помню тебя и живу.","Мне можно, даже если тебе было нельзя."] },
+    { id:"repeat", name:"Повторение чужой судьбы", q:"Повторяется ли в твоей жизни то, что уже было у кого-то в семье?",
+      phrases:["Твоя судьба — твоя. Моя — моя.","Я оставляю тебе то, что твоё.","Я живу свою жизнь."] },
+    { id:"weave", name:"Чужое чувство", q:"Бывает ли чувство, которое будто не твоё?",
+      phrases:["Это чувство не моё.","Я отдаю его тому, кому оно принадлежит.","Это было твоё. Я кладу это."] },
+    { id:"balance", name:"Баланс давать и брать", q:"Берёшь ли ты столько же, сколько отдаёшь?",
+      phrases:["Я беру от тебя жизнь. Целиком.","Я беру и благодарю.","Я передам это дальше."] },
+    { id:"belong", name:"Страх потерять своих", q:"Что страшно потерять, если жить свободнее?",
+      phrases:["Я остаюсь с вами, даже когда мне хорошо.","Я принадлежу вам и живу свою жизнь."] },
+    { id:"symptom", name:"То, что мешает, защищает", q:"От чего тебя бережёт то, что мешает?",
+      phrases:["Спасибо за защиту.","Теперь я справлюсь.","Можешь стоять рядом, но не впереди."] }
+  ];
+
+  var UNIVERSAL = ["Я вижу тебя.","Я беру от вас жизнь.","Я оставляю тебе твоё.","Я на своём месте."];
+
+  var HOLD_QUESTION = 3000;   // выдержка перед «Дальше» на вопросе, мс
+  var HOLD_PHRASE = 8000;     // тишина после сказанной фразы, мс
+
+  /* ======================= состояние ======================= */
+
+  function fresh(){
+    return { stage:"intro", zapros:"", figures:[], first:null, queue:[], qi:0, placed:false,
+      answers:[], observations:[], dyn:[], said:[], phraseIdx:0, phase:"show", custom:null,
+      action:"", sel:null, moved:false };
+  }
+  var state = fresh();
+  var downloads = null, KEY = "pole-rasstanovki-v3", timers = [];
+
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+  function loadSaved(){ try{ var r=localStorage.getItem(KEY); return r?JSON.parse(r):null; }catch(e){ return null; } }
+  function clearSaved(){ try{ localStorage.removeItem(KEY); }catch(e){} }
+
+  var $ = function(id){ return document.getElementById(id); };
+  var app=$("app"), intro=$("intro"), work=$("work"), panel=$("panel"), field=$("field"),
+      fieldWrap=$("fieldWrap"), fieldNote=$("fieldNote"), stepsEl=$("steps"), logEl=$("log"),
+      restartBtn=$("restart"), helpBtn=$("helpBtn"), helpLayer=$("helpLayer"), resumeBtn=$("resume");
+
+  var STEP_OF = { zapros:1, figury:2, pole:3, dinamika:4, frazy:5, itog:5 };
+
+  /* ======================= помощники ======================= */
+
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(text != null) e.textContent = text;
+    return e;
+  }
+  function slug(){ return "f" + Math.random().toString(36).slice(2,8); }
+  function shuffle(a){
+    for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; }
+    return a;
+  }
+  function clone(x){ return JSON.parse(JSON.stringify(x)); }
+  function byId(id, list){
+    list = list || state.figures;
+    for(var i=0;i<list.length;i++) if(list[i].id===id) return list[i];
+    return null;
+  }
+  function meIn(list){
+    for(var i=0;i<list.length;i++) if(list[i].tone==="self") return list[i];
+    return null;
+  }
+  function me(){ return meIn(state.figures); }
+  function others(list){ return (list||state.figures).filter(function(f){ return f.tone!=="self"; }); }
+  function later(fn, ms){ timers.push(setTimeout(fn, ms)); }
+  function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+  function top(){ window.scrollTo({ top:0, behavior:"smooth" }); }
+
+  /* Полоска выдержки; кнопка включается, когда она дошла до конца. */
+  function holdBar(ms, btn){
+    var bar = el("div","hold"), fill = el("i");
+    fill.style.animationDuration = ms + "ms";
+    bar.appendChild(fill);
+    btn.disabled = true;
+    later(function(){ btn.disabled = false; }, ms);
+    return bar;
+  }
+
+  /* ======================= поле ======================= */
+
+  function drawFigure(f, target, interactive){
+    var e = el("div","fig" + (interactive && state.sel===f.id ? " sel" : ""));
+    e.setAttribute("data-tone", f.tone||"neutral");
+    e.style.left = f.x + "%"; e.style.top = f.y + "%";
+    e.title = f.name;
+    var pres = el("div","presence");
+    pres.style.transform = "rotate(" + (f.facing||0) + "deg)";
+    pres.appendChild(el("i"));
+    e.appendChild(pres);
+    e.appendChild(el("span", null, f.name));
+    if(interactive) makeInteractive(e, f);
+    target.appendChild(e);
+  }
+
+  function renderField(){
+    fieldWrap.hidden = !(STEP_OF[state.stage] >= 2);
+    field.textContent = "";
+    if(!state.figures.length){
+      field.appendChild(el("div","field-empty","поле пока пусто"));
+      fieldNote.textContent = "";
+      return;
+    }
+    var svgNS = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(svgNS,"svg");
+    svg.setAttribute("viewBox","0 0 100 100");
+    svg.setAttribute("preserveAspectRatio","none");
+    var m = me(), s = state.sel && byId(state.sel);
+    if(m && s && s.id !== m.id){
+      var ln = document.createElementNS(svgNS,"line");
+      ln.setAttribute("x1",m.x); ln.setAttribute("y1",m.y);
+      ln.setAttribute("x2",s.x); ln.setAttribute("y2",s.y);
+      ln.setAttribute("stroke","#3A4448"); ln.setAttribute("stroke-width","1");
+      ln.setAttribute("stroke-dasharray","3 3"); ln.setAttribute("vector-effect","non-scaling-stroke");
+      svg.appendChild(ln);
+    }
+    field.appendChild(svg);
+    state.figures.forEach(function(f){ drawFigure(f, field, true); });
+    if(!fieldNote.textContent) fieldNote.textContent = "двигай фигуры пальцем · нажми, чтобы повернуть";
+  }
+
+  function renderMini(list, caption){
+    var fig = el("figure"), box = el("div","mini");
+    list.forEach(function(f){ drawFigure(f, box, false); });
+    fig.appendChild(box);
+    fig.appendChild(el("figcaption", null, caption));
+    return fig;
+  }
+
+  function makeInteractive(e, fig){
+    e.addEventListener("pointerdown", function(ev){
+      ev.preventDefault();
+      e.setPointerCapture(ev.pointerId);
+      var rect = field.getBoundingClientRect(), sx = ev.clientX, sy = ev.clientY, dragged = false;
+      function move(m){
+        if(Math.abs(m.clientX-sx) + Math.abs(m.clientY-sy) > 6) dragged = true;
+        if(!dragged) return;
+        e.classList.add("dragging");
+        fig.x = Math.max(9, Math.min(91, Math.round(((m.clientX-rect.left)/rect.width)*100)));
+        fig.y = Math.max(9, Math.min(91, Math.round(((m.clientY-rect.top)/rect.height)*100)));
+        e.style.left = fig.x + "%"; e.style.top = fig.y + "%";
+      }
+      function up(){
+        e.classList.remove("dragging");
+        e.removeEventListener("pointermove",move);
+        e.removeEventListener("pointerup",up);
+        e.removeEventListener("pointercancel",up);
+        if(dragged){ state.moved = true; fieldNote.textContent = "поле сдвинуто"; }
+        state.sel = fig.id;
+        save(); renderField(); refreshTools();
+      }
+      e.addEventListener("pointermove",move);
+      e.addEventListener("pointerup",up);
+      e.addEventListener("pointercancel",up);
+    });
+  }
+
+  function addFigure(name, tone){
+    if(state.figures.length >= 10) return;
+    var n = state.figures.length, ang = (n/10)*Math.PI*2, r = 26;
+    state.figures.push({
+      id:slug(), name:name,
+      x:Math.round(50 + Math.cos(ang-Math.PI/2)*r),
+      y:Math.round(50 + Math.sin(ang-Math.PI/2)*r),
+      facing:0, tone: tone || TONES[name] || "neutral"
+    });
+  }
+
+  /* ======================= геометрия поля (без толкований) ======================= */
+
+  var CENTER = {x:50,y:50};
+  function dist(a,b){ return Math.sqrt(Math.pow(a.x-b.x,2)+Math.pow(a.y-b.y,2)); }
+  function angleTo(a,b){ var d = Math.atan2(b.x-a.x, a.y-b.y) * 180/Math.PI; return (d+360)%360; }
+  function angleGap(a,b){ var d = Math.abs((a-b+360)%360); return d>180 ? 360-d : d; }
+  function looksAt(a,b){ return angleGap(a.facing||0, angleTo(a,b)) <= 32; }
+  function nm(f){ return f.name; }
+  function nearWord(d){ return d < 18 ? "вплотную" : (d < 32 ? "рядом" : (d < 45 ? "поодаль" : "далеко")); }
+
+  function observations(){
+    var m = me(), rest = others(), out = [];
+    if(!m || !rest.length) return out;
+    var sorted = rest.slice().sort(function(p,q){ return dist(m,p)-dist(m,q); });
+    if(sorted.length > 1) out.push("Ближе всех к тебе — " + sorted[0].name + ". Дальше всех — " + sorted[sorted.length-1].name + ".");
+    else out.push(sorted[0].name + " — " + nearWord(dist(m,sorted[0])) + " от тебя.");
+
+    var seen = rest.filter(function(f){ return looksAt(m,f); });
+    out.push(seen.length ? "Ты смотришь на: " + seen.map(nm).join(", ") + "." : "Ты не смотришь ни на одну фигуру.");
+
+    var atMe = rest.filter(function(f){ return looksAt(f,m); });
+    out.push(atMe.length ? "На тебя смотрят: " + atMe.map(nm).join(", ") + "." : "На тебя не смотрит никто.");
+
+    var behind = rest.filter(function(f){ return angleGap(angleTo(m,f), ((m.facing||0)+180)%360) <= 55; });
+    out.push(behind.length ? "За твоей спиной: " + behind.map(nm).join(", ") + "." : "За твоей спиной пусто.");
+
+    var away = rest.filter(function(f){ return angleGap(f.facing||0, angleTo(f,CENTER)) > 120; });
+    if(away.length) out.push("Смотрят прочь из поля: " + away.map(nm).join(", ") + ".");
+
+    var lone = null, best = -1;
+    state.figures.forEach(function(f){
+      var near = 1e9;
+      state.figures.forEach(function(g){ if(g.id!==f.id) near = Math.min(near, dist(f,g)); });
+      if(near > best){ best = near; lone = f; }
+    });
+    if(lone && best > 28 && state.figures.length > 2) out.push("Дальше всех от остальных стоит " + (lone.tone==="self" ? "твоя фигура" : lone.name) + ".");
+    return out;
+  }
+
+  function relation(list, f){
+    var m = meIn(list);
+    if(!m) return null;
+    return { near: nearWord(dist(m,f)), toMe: looksAt(f,m), fromMe: looksAt(m,f) };
+  }
+  function lookWords(r){
+    if(r.toMe && r.fromMe) return "вы смотрите друг на друга";
+    if(r.toMe) return "смотрит на тебя";
+    if(r.fromMe) return "ты смотришь туда";
+    return "взгляды не встречаются";
+  }
+
+  function schemaLines(list){
+    return others(list).map(function(f){
+      var r = relation(list, f);
+      return r ? f.name + " — " + r.near + ", " + lookWords(r) : f.name;
+    });
+  }
+
+  /* Что изменилось между первой и последней картиной — только факты. */
+  function shiftLines(){
+    if(!state.first) return [];
+    var out = [];
+    others().forEach(function(f){
+      var was = byId(f.id, state.first);
+      if(!was){ out.push(f.name + " — в поле с середины работы"); return; }
+      var a = relation(state.first, was), b = relation(state.figures, f), parts = [];
+      if(!a || !b) return;
+      if(a.near !== b.near) parts.push(a.near + " → " + b.near);
+      if(a.toMe !== b.toMe) parts.push(b.toMe ? "теперь смотрит на тебя" : "теперь не смотрит на тебя");
+      if(a.fromMe !== b.fromMe) parts.push(b.fromMe ? "теперь ты смотришь туда" : "теперь ты не смотришь туда");
+      if(parts.length) out.push(f.name + " — " + parts.join(", "));
+    });
+    state.first.forEach(function(f){
+      if(f.tone!=="self" && !byId(f.id)) out.push(f.name + " — больше не в поле");
+    });
+    return out;
+  }
+
+  /* ======================= шаги ======================= */
+
+  function renderSteps(){
+    var n = STEP_OF[state.stage] || 1;
+    stepsEl.hidden = false;
+    Array.prototype.forEach.call(stepsEl.children, function(d){
+      var k = Number(d.getAttribute("data-s"));
+      d.className = k < n ? "done" : (k === n ? "now" : "");
+    });
+  }
+
+  function go(stage){
+    state.stage = stage;
+    state.sel = null;
+    fieldNote.textContent = "";
+    save(); render(); top();
+  }
+
+  function render(){ renderSteps(); renderField(); renderPanel(); renderLog(); }
+
+  function renderPanel(){
+    clearTimers();
+    panel.textContent = "";
+    ({ zapros:pZapros, figury:pFigury, pole:pPole, dinamika:pDinamika, frazy:pFrazy, itog:pItog }[state.stage] || function(){})();
+  }
+
+  /* Обновить только плашку выбранной фигуры, не трогая введённый текст. */
+  function refreshTools(){
+    var old = panel.querySelector(".tools");
+    if(old) old.replaceWith(tools());
+  }
+
+  /* ---------- шаг 1: запрос ---------- */
+  function pZapros(){
+    panel.appendChild(el("p","ask","Назови один запрос."));
+    panel.appendChild(el("p","hint","Начни так: «Я хочу понять, что системно стоит за…». Один запрос, а не три. Чем конкретнее, тем яснее встанет поле."));
+    var ta = el("textarea");
+    ta.value = state.zapros;
+    ta.placeholder = "Я хочу понять, что системно стоит за…";
+    panel.appendChild(ta);
+    var btn = el("button","primary","Дальше — собрать фигуры");
+    btn.addEventListener("click", function(){
+      state.zapros = ta.value.trim();
+      if(!state.zapros){ ta.focus(); return; }
+      if(!me()){
+        addFigure("Я","self");
+        var f = state.figures[state.figures.length-1];
+        f.x = 50; f.y = 66; f.facing = 0;
+      }
+      go("figury");
+    });
+    panel.appendChild(btn);
+  }
+
+  /* ---------- шаг 2: фигуры ---------- */
+  function pFigury(){
+    panel.appendChild(el("p","ask","Кто участвует?"));
+    panel.appendChild(el("p","hint","Фигура — это человек, чувство, событие, часть тебя или понятие. Бери те, что отзываются, а не те, что «положено». Трёх–семи достаточно."));
+
+    var chosen = {};
+    state.figures.forEach(function(f){ chosen[f.name] = true; });
+
+    LIBRARY.forEach(function(pair){
+      panel.appendChild(el("p","cat",pair[0]));
+      var box = el("div","chips");
+      pair[1].forEach(function(name){
+        var c = el("button","chip" + (chosen[name] ? " on" : ""), name);
+        c.setAttribute("aria-pressed", chosen[name] ? "true" : "false");
+        c.addEventListener("click", function(){
+          var ex = state.figures.filter(function(f){ return f.name===name; })[0];
+          if(ex) state.figures = state.figures.filter(function(f){ return f.id!==ex.id; });
+          else addFigure(name);
+          save(); renderField(); renderPanel();
+        });
+        box.appendChild(c);
+      });
+      panel.appendChild(box);
+    });
+
+    panel.appendChild(el("p","cat","Своя фигура"));
+    var add = el("div","add");
+    var inp = el("input"); inp.type = "text"; inp.placeholder = "Как её зовут"; inp.maxLength = 30;
+    var ab = el("button","quiet","Добавить");
+    function doAdd(){
+      var v = inp.value.trim();
+      if(!v) return;
+      addFigure(v); inp.value = "";
+      save(); renderField(); renderPanel();
+    }
+    ab.addEventListener("click", doAdd);
+    inp.addEventListener("keydown", function(e){ if(e.key==="Enter") doAdd(); });
+    add.appendChild(inp); add.appendChild(ab);
+    panel.appendChild(add);
+    if(state.figures.length >= 10) panel.appendChild(el("p","hint","В поле десять фигур — это предел. Чтобы добавить новую, убери одну из уже выбранных."));
+
+    var next = el("button","primary","Дальше — расставить");
+    next.disabled = state.figures.length < 2;
+    next.addEventListener("click", function(){
+      state.queue = buildQueue();
+      state.qi = 0; state.placed = false;
+      go("pole");
+    });
+    panel.appendChild(next);
+  }
+
+  /* ---------- шаг 3: поле ---------- */
+  function buildQueue(){
+    var q = [], g = shuffle(Q_GENERAL.slice()), perFig = shuffle(Q_FIGURE.slice());
+    others().forEach(function(f, i){
+      q.push({ t: perFig[i % perFig.length], fig:f.id });
+      q.push({ t: perFig[(i+3) % perFig.length], fig:f.id });
+    });
+    q = shuffle(q);
+    var out = [{ t:"Посмотри на поле целиком. Что замечаешь первым?" }], gi = 0;
+    q.forEach(function(item, i){
+      out.push(item);
+      if(i % 2 === 1 && gi < g.length) out.push({ t:g[gi++] });
+    });
+    return out.slice(0, 16);
+  }
+
+  function currentQuestion(){
+    while(state.qi < state.queue.length){
+      var c = state.queue[state.qi];
+      if(!c.fig || byId(c.fig)) return c;
+      state.qi++;
+    }
+    return null;
+  }
+
+  function questionText(c){
+    var f = c.fig && byId(c.fig);
+    return f ? c.t.replace("{f}", f.name) : c.t;
+  }
+
+  function pPole(){
+    if(!state.placed){
+      panel.appendChild(el("p","ask","Расставь фигуры."));
+      panel.appendChild(el("p","hint","Двигай их пальцем прямо по кругу. Не думай, как правильно, — ставь, как ставится. Нажми на фигуру, чтобы повернуть её взгляд."));
+      panel.appendChild(tools());
+      var b = el("button","primary","Фигуры стоят");
+      b.addEventListener("click", function(){
+        state.placed = true; state.qi = 0;
+        state.first = clone(state.figures);
+        pushObservation();
+        showQuestion();
+      });
+      panel.appendChild(b);
+      return;
+    }
+
+    var cur = currentQuestion();
+    if(!cur){
+      panel.appendChild(el("p","ask","Вопросы закончились."));
+      panel.appendChild(el("p","hint","Дальше — посмотреть, какая динамика за этим стоит."));
+      var d = el("button","primary","Дальше — динамика");
+      d.addEventListener("click", function(){ go("dinamika"); });
+      panel.appendChild(d);
+      return;
+    }
+
+    var fig = cur.fig && byId(cur.fig);
+    if(fig) panel.appendChild(el("p","eyebrow", fig.name));
+    panel.appendChild(el("p","ask", questionText(cur)));
+    panel.appendChild(el("p","hint","Отвечай первым, что пришло: телом, образом, словом. Если отклика нет — пропусти, это не ошибка."));
+    panel.appendChild(tools());
+
+    var ta = el("textarea");
+    ta.placeholder = "Что отзывается…";
+    panel.appendChild(ta);
+
+    var skip = el("button","quiet","Нет отклика");
+    skip.addEventListener("click", function(){ nextQuestion(null); });
+    var ok = el("button","primary","Дальше");
+    ok.addEventListener("click", function(){ nextQuestion(ta.value.trim()); });
+    panel.appendChild(holdBar(HOLD_QUESTION, ok));
+    var row = el("div","row");
+    row.appendChild(skip); row.appendChild(ok);
+    panel.appendChild(row);
+
+    if(fig){
+      var stay = el("button","quiet","Побыть с этой фигурой ещё");
+      stay.addEventListener("click", function(){
+        var extra = shuffle(Q_DEEPER.slice()).slice(0,2).map(function(t){ return { t:t, fig:fig.id }; });
+        state.queue.splice.apply(state.queue, [state.qi+1, 0].concat(extra));
+        nextQuestion(ta.value.trim());
+      });
+      panel.appendChild(stay);
+    }
+
+    if(state.answers.length >= 5){
+      var early = el("button","quiet","Хватит вопросов — к динамике");
+      early.addEventListener("click", function(){ go("dinamika"); });
+      panel.appendChild(early);
+    }
+
+    if(state.observations.length){
+      var last = state.observations[state.observations.length-1];
+      var ob = el("div","observe");
+      ob.appendChild(el("h3", null, "Что видно в поле"));
+      var ul = el("ul");
+      last.forEach(function(line){ ul.appendChild(el("li",null,line)); });
+      ob.appendChild(ul);
+      ob.appendChild(el("p","hint","Это не толкование. Это расстояния и взгляды, как они стоят сейчас."));
+      panel.appendChild(ob);
+    }
+  }
+
+  function showQuestion(){
+    var c = currentQuestion();
+    state.sel = c && c.fig ? c.fig : null;
+    save(); renderField(); renderPanel(); renderLog(); top();
+  }
+
+  function pushObservation(){
+    var o = observations();
+    if(o.length) state.observations.push(o);
+    save();
+  }
+
+  function nextQuestion(answer){
+    var cur = currentQuestion();
+    if(cur && answer) state.answers.push({ q:questionText(cur), a:answer });
+    state.qi++;
+    if(state.qi % 3 === 0 || state.moved){ pushObservation(); state.moved = false; }
+    showQuestion();
+  }
+
+  function tools(){
+    var f = state.sel && byId(state.sel);
+    var box = el("div","tools");
+    if(!f){
+      box.appendChild(el("b", null, "Нажми на фигуру, чтобы повернуть её взгляд"));
+      return box;
+    }
+    box.appendChild(el("b", null, f.name));
+    function mk(label, fn, cls, aria){
+      var b = el("button", cls || null, label);
+      if(aria) b.setAttribute("aria-label", aria);
+      b.addEventListener("click", function(){ fn(); state.moved = true; save(); renderField(); refreshTools(); });
+      return b;
+    }
+    box.appendChild(mk("↺", function(){ f.facing = ((f.facing||0) - 30 + 360) % 360; }, null, "Повернуть влево"));
+    box.appendChild(mk("↻", function(){ f.facing = ((f.facing||0) + 30) % 360; }, null, "Повернуть вправо"));
+    box.appendChild(mk("к центру", function(){ f.facing = Math.round(angleTo(f,CENTER)); }));
+    var m = me();
+    if(m && m.id !== f.id) box.appendChild(mk("на меня", function(){ f.facing = Math.round(angleTo(f,m)); }));
+    box.appendChild(mk("прочь", function(){ f.facing = Math.round((angleTo(f,CENTER) + 180) % 360); }));
+    if(f.tone !== "self") box.appendChild(mk("убрать", function(){
+      state.figures = state.figures.filter(function(g){ return g.id!==f.id; }); state.sel = null;
+    }, "danger"));
+    return box;
+  }
+
+  /* ---------- шаг 4: динамика ---------- */
+  function pDinamika(){
+    panel.appendChild(el("p","ask","Что из этого отзывается?"));
+    panel.appendChild(el("p","hint","Отметь только то, что отзывается в теле, а не то, что кажется верным. Можно ничего не отмечать."));
+
+    var box = el("div","dyn");
+    DYNAMICS.forEach(function(d){
+      var lab = el("label");
+      var cb = el("input"); cb.type = "checkbox"; cb.checked = state.dyn.indexOf(d.id) >= 0;
+      cb.addEventListener("change", function(){
+        if(cb.checked){ if(state.dyn.indexOf(d.id)<0) state.dyn.push(d.id); }
+        else state.dyn = state.dyn.filter(function(x){ return x!==d.id; });
+        save();
+      });
+      var text = el("div");
+      text.appendChild(el("b", null, d.name));
+      text.appendChild(el("i", null, d.q));
+      lab.appendChild(cb); lab.appendChild(text);
+      box.appendChild(lab);
+    });
+    panel.appendChild(box);
+
+    var row = el("div","row");
+    var back = el("button","quiet","Вернуться к полю");
+    back.addEventListener("click", function(){ go("pole"); });
+    var next = el("button","primary","Дальше — фразы");
+    next.addEventListener("click", function(){ state.phraseIdx = 0; state.phase = "show"; state.custom = null; go("frazy"); });
+    row.appendChild(back); row.appendChild(next);
+    panel.appendChild(row);
+  }
+
+  /* ---------- шаг 5: фразы ---------- */
+  function phraseList(){
+    var out = [];
+    DYNAMICS.forEach(function(d){
+      if(state.dyn.indexOf(d.id) >= 0) d.phrases.forEach(function(p){ out.push({ text:p, from:d.name }); });
+    });
+    if(!out.length) UNIVERSAL.forEach(function(p){ out.push({ text:p, from:"Общее" }); });
+    return out;
+  }
+
+  function phraseBox(p){
+    var ph = el("div","phrase");
+    ph.appendChild(el("div","who", p.from));
+    ph.appendChild(el("q", null, p.text));
+    return ph;
+  }
+
+  function pFrazy(){
+    var list = phraseList();
+    var cur = state.custom || list[state.phraseIdx];
+
+    if(!cur){
+      panel.appendChild(el("p","ask","Фразы сказаны."));
+      panel.appendChild(el("p","hint","Посмотри на поле ещё раз. Если хочется — переставь фигуры так, как им стоится теперь."));
+      panel.appendChild(tools());
+      customPhraseBlock();
+      var b = el("button","primary","Собрать итог");
+      b.addEventListener("click", function(){ go("itog"); });
+      panel.appendChild(b);
+      return;
+    }
+
+    if(state.phase === "show"){
+      panel.appendChild(el("p","ask","Скажи вслух одну фразу. Не спеша."));
+      panel.appendChild(phraseBox(cur));
+      panel.appendChild(el("p","hint","Скажи её тому, к кому она обращена. Если фраза не идёт — пропусти: значит, она не твоя."));
+      var row = el("div","row");
+      var skip = el("button","quiet","Не моя фраза");
+      skip.addEventListener("click", function(){ advancePhrase(); });
+      var said = el("button","primary","Сказано");
+      said.addEventListener("click", function(){ state.phase = "pause"; save(); renderPanel(); });
+      row.appendChild(skip); row.appendChild(said);
+      panel.appendChild(row);
+      if(!state.custom) customPhraseBlock();
+      var done = el("button","quiet","Достаточно — к итогу");
+      done.addEventListener("click", function(){ go("itog"); });
+      panel.appendChild(done);
+      return;
+    }
+
+    if(state.phase === "pause"){
+      var p = el("div","pause");
+      p.appendChild(phraseBox(cur));
+      p.appendChild(el("p","ask","Побудь с этим."));
+      p.appendChild(el("p","hint","Заметь тело. Заметь, как стоят фигуры. Ничего не нужно делать."));
+      var go_ = el("button","primary","Дальше");
+      p.appendChild(holdBar(HOLD_PHRASE, go_));
+      go_.addEventListener("click", function(){ state.phase = "note"; save(); renderPanel(); });
+      p.appendChild(go_);
+      panel.appendChild(p);
+      return;
+    }
+
+    panel.appendChild(phraseBox(cur));
+    panel.appendChild(el("p","ask","Что изменилось?"));
+    panel.appendChild(el("p","hint","В образе, в теле, в положении фигур. Если хочется подвинуть фигуру — подвинь."));
+    panel.appendChild(tools());
+    var ta = el("textarea");
+    ta.placeholder = "Что изменилось…";
+    panel.appendChild(ta);
+    var ok = el("button","primary","Дальше");
+    ok.addEventListener("click", function(){
+      state.said.push({ text:cur.text, from:cur.from, note:ta.value.trim() });
+      advancePhrase();
+    });
+    panel.appendChild(ok);
+  }
+
+  function customPhraseBlock(){
+    panel.appendChild(el("p","cat","Своя фраза"));
+    var add = el("div","add");
+    var inp = el("input"); inp.type = "text"; inp.placeholder = "Фраза, которая просится"; inp.maxLength = 120;
+    var ab = el("button","quiet","Сказать её");
+    function use(){
+      var v = inp.value.trim();
+      if(!v) return;
+      state.custom = { text:v, from:"Своя фраза" };
+      state.phase = "pause";
+      save(); renderPanel(); top();
+    }
+    ab.addEventListener("click", use);
+    inp.addEventListener("keydown", function(e){ if(e.key==="Enter") use(); });
+    add.appendChild(inp); add.appendChild(ab);
+    panel.appendChild(add);
+  }
+
+  function advancePhrase(){
+    if(state.custom) state.custom = null;
+    else state.phraseIdx++;
+    state.phase = "show";
+    save(); renderField(); renderPanel(); renderLog(); top();
+  }
+
+  /* ---------- итог ---------- */
+  function pItog(){
+    var box = el("div","final");
+    box.appendChild(el("h2", null, "Итог расстановки"));
+
+    var s1 = el("section");
+    s1.appendChild(el("h3", null, "Запрос"));
+    s1.appendChild(el("div", null, state.zapros || "—"));
+    box.appendChild(s1);
+
+    var s2 = el("section");
+    s2.appendChild(el("h3", null, "Было — стало"));
+    var cmp = el("div","compare");
+    cmp.appendChild(renderMini(state.first || state.figures, "в начале"));
+    cmp.appendChild(renderMini(state.figures, "в конце"));
+    s2.appendChild(cmp);
+    var shifts = shiftLines();
+    var sch = el("div","schema");
+    if(shifts.length) shifts.forEach(function(l){ sch.appendChild(el("div", null, l)); });
+    else sch.appendChild(el("div", null, "Фигуры стоят так же, как в начале."));
+    s2.appendChild(sch);
+    box.appendChild(s2);
+
+    var s2b = el("section");
+    s2b.appendChild(el("h3", null, "Как стоит поле сейчас"));
+    var sch2 = el("div","schema");
+    schemaLines(state.figures).forEach(function(l){ sch2.appendChild(el("div", null, l)); });
+    s2b.appendChild(sch2);
+    box.appendChild(s2b);
+
+    if(state.dyn.length){
+      var s3 = el("section");
+      s3.appendChild(el("h3", null, "Что отозвалось"));
+      var ul = el("ul");
+      DYNAMICS.forEach(function(d){ if(state.dyn.indexOf(d.id)>=0) ul.appendChild(el("li", null, d.name)); });
+      s3.appendChild(ul);
+      box.appendChild(s3);
+    }
+
+    if(state.said.length){
+      var s4 = el("section");
+      s4.appendChild(el("h3", null, "Сказанные фразы"));
+      var ul2 = el("ul");
+      state.said.forEach(function(p){
+        var li = el("li");
+        li.appendChild(el("span","said","«" + p.text + "»"));
+        if(p.note) li.appendChild(el("div", null, p.note));
+        ul2.appendChild(li);
+      });
+      s4.appendChild(ul2);
+      box.appendChild(s4);
+    }
+
+    var s5 = el("section");
+    s5.appendChild(el("h3", null, "Шаг в жизни"));
+    s5.appendChild(el("p","hint","Одно маленькое действие, которое подтвердит новое положение фигур. Не намерение, а дело с датой."));
+    var ta = el("textarea");
+    ta.value = state.action;
+    ta.placeholder = "Что сделаю и когда…";
+    ta.addEventListener("input", function(){ state.action = ta.value; save(); });
+    s5.appendChild(ta);
+    box.appendChild(s5);
+
+    panel.appendChild(box);
+
+    var saveBtn = el("button","primary","Сохранить себе");
+    var toast = el("p","toast"); toast.hidden = true;
+    saveBtn.addEventListener("click", function(){
+      saveOut().then(function(msg){ if(msg){ toast.textContent = msg; toast.hidden = false; } });
+    });
+    panel.appendChild(saveBtn);
+    panel.appendChild(toast);
+
+    panel.appendChild(offer());
+
+    var again = el("button","quiet","Новая расстановка");
+    again.addEventListener("click", function(){ resetAll(); });
+    panel.appendChild(again);
+  }
+
+  function offer(){
+    var o = el("div","offer");
+    o.appendChild(el("p","eyebrow","Если хочется разобрать глубже"));
+    o.appendChild(el("p", null, "Расстановка показывает картину. Понять, почему она сложилась и что с ней делать дальше, проще вдвоём с психологом."));
+    o.appendChild(el("p","price", CONFIG.diagnosticPrice));
+    o.appendChild(el("p", null, "На встрече разберём твоё поле: что за ним стоит и с чем имеет смысл идти дальше."));
+    var a = el("a","primary","Записаться на диагностику");
+    a.href = CONFIG.diagnosticChat + "?text=" + encodeURIComponent(CONFIG.diagnosticText);
+    a.target = "_blank"; a.rel = "noopener";
+    o.appendChild(a);
+    var more = el("a","more","Статьи о терапии в канале →");
+    more.href = CONFIG.articlesLink; more.target = "_blank"; more.rel = "noopener";
+    o.appendChild(more);
+    return o;
+  }
+
+  function markdown(){
+    var L = ["# Расстановка", "", "_" + new Date().toLocaleDateString("ru-RU") + "_", "",
+      "## Запрос", "", state.zapros || "—", ""];
+    if(state.first){
+      L.push("## В начале", "");
+      schemaLines(state.first).forEach(function(l){ L.push("- " + l); });
+      L.push("");
+    }
+    L.push("## В конце", "");
+    schemaLines(state.figures).forEach(function(l){ L.push("- " + l); });
+    L.push("");
+    var sh = shiftLines();
+    if(sh.length){ L.push("## Что изменилось", ""); sh.forEach(function(l){ L.push("- " + l); }); L.push(""); }
+    if(state.answers.length){
+      L.push("## Что замечалось", "");
+      state.answers.forEach(function(a){ L.push("**" + a.q + "**", "", a.a, ""); });
+    }
+    if(state.dyn.length){
+      L.push("## Что отозвалось", "");
+      DYNAMICS.forEach(function(d){ if(state.dyn.indexOf(d.id)>=0) L.push("- " + d.name + " — " + d.q); });
+      L.push("");
+    }
+    if(state.said.length){
+      L.push("## Фразы", "");
+      state.said.forEach(function(p){ L.push("> " + p.text); if(p.note) L.push("", p.note); L.push(""); });
+    }
+    if(state.action) L.push("## Шаг в жизни", "", state.action, "");
+    return L.join("\n");
+  }
+
+  /* Сохранение: в Claude — через downloads; на сайте — «Поделиться», иначе файл. */
+  function saveOut(){
+    var md = markdown(), name = "rasstanovka.md";
+    if(downloads){
+      return downloads.save({ filename:name, data:md })
+        .then(function(){ return "Сохранено."; })
+        .catch(function(){ return null; });
+    }
+    if(navigator.share){
+      return navigator.share({ title:"Моя расстановка", text:md })
+        .then(function(){ return "Отправлено."; })
+        .catch(function(e){ return e && e.name === "AbortError" ? null : fileOut(md, name); });
+    }
+    return Promise.resolve(fileOut(md, name));
+  }
+  function fileOut(md, name){
+    try{
+      var url = URL.createObjectURL(new Blob([md], { type:"text/markdown;charset=utf-8" }));
+      var a = document.createElement("a");
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      return "Файл сохранён.";
+    }catch(e){ return "Сохранить не вышло. Выдели текст итога и скопируй его."; }
+  }
+
+  /* ---------- журнал ---------- */
+  function renderLog(){
+    if(!state.answers.length || state.stage==="itog"){ logEl.hidden = true; return; }
+    logEl.hidden = false;
+    logEl.textContent = "";
+    logEl.appendChild(el("h2", null, "Журнал"));
+    state.answers.slice().reverse().forEach(function(a){
+      var e = el("div","entry");
+      e.appendChild(el("b", null, a.q));
+      e.appendChild(el("span", null, a.a));
+      logEl.appendChild(e);
+    });
+  }
+
+  /* ======================= вход, сброс, «Мне тяжело» ======================= */
+
+  function showWork(){
+    intro.hidden = true; work.hidden = false;
+    restartBtn.hidden = false; helpBtn.hidden = false;
+    app.classList.add("working");
+  }
+
+  function offerResume(){
+    var saved = loadSaved();
+    var ok = !!(saved && saved.stage && saved.stage !== "intro");
+    resumeBtn.hidden = !ok;
+    var begin = $("begin");
+    begin.textContent = ok ? "Начать новую" : "Войти в поле";
+    begin.className = ok ? "quiet" : "primary";
+  }
+
+  function toIntro(){
+    clearTimers(); disarm();
+    intro.hidden = false; work.hidden = true; stepsEl.hidden = true; logEl.hidden = true;
+    restartBtn.hidden = true; helpBtn.hidden = true;
+    app.classList.remove("working");
+    panel.textContent = "";
+    offerResume();
+    window.scrollTo(0,0);
+  }
+
+  function resetAll(){
+    clearSaved();
+    state = fresh();
+    toIntro();
+  }
+
+  $("begin").addEventListener("click", function(){
+    clearSaved();
+    state = fresh();
+    showWork();
+    go("zapros");
+  });
+
+  resumeBtn.addEventListener("click", function(){
+    var saved = loadSaved();
+    if(!saved){ offerResume(); return; }
+    state = saved; state.sel = null;
+    showWork();
+    render();
+  });
+
+  var armTimer = null;
+  function disarm(){
+    clearTimeout(armTimer); armTimer = null;
+    restartBtn.classList.remove("armed");
+    restartBtn.textContent = "Заново";
+  }
+  restartBtn.addEventListener("click", function(){
+    if(armTimer){ disarm(); resetAll(); return; }
+    restartBtn.classList.add("armed");
+    restartBtn.textContent = "Точно заново?";
+    armTimer = setTimeout(disarm, 4000);
+  });
+
+  helpBtn.addEventListener("click", function(){
+    save();
+    helpLayer.hidden = false;
+    $("helpBack").focus();
+  });
+  $("helpBack").addEventListener("click", function(){ helpLayer.hidden = true; });
+  $("helpStop").addEventListener("click", function(){ save(); helpLayer.hidden = true; toIntro(); });
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape" && !helpLayer.hidden) helpLayer.hidden = true; });
+
+  offerResume();
+
+  /* Внутри Claude сохраняем через downloads; на сайте window.claude нет. */
+  if(window.claude && typeof window.claude.use === "function"){
+    window.claude.use("downloads").then(function(d){ downloads = d; }).catch(function(){});
+  }
+})();
+</script>
+</body>
+</html>
